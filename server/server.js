@@ -1,36 +1,24 @@
+var express = require('express');
+var bodyParser = require('body-parser');
+
 var {mongoose} = require('./db/mongoose');
+var {Todo} = require('./models/Todo');
+var {User} = require('./models/User');
 
-
-
-
-
-var newUser = new User({
-    email: "josicann@ut.utm.edu"
-});
-var newTodo = new Todo({
-    text: "Cook Dinner"
+var app = express();
+app.use(bodyParser.json());
+app.listen(3000, ()=> {
+    console.log('started on port 3000');
 });
 
-var anotherTodo = new Todo({
-    text: "  ",
-    completed: false,
-    completedAt: new Date().getTime()
-});
+app.post('/todos', (req, res) => {
+    var todo = new Todo({
+        text:req.body.text
+    });
 
-// newTodo.save().then((doc) => {
-//     console.log(doc);
-// }, (e) => {
-//     console.log('unable to save todo');
-// });
-
-// anotherTodo.save().then((doc) => {
-//     console.log(doc);
-// }, (err) => {
-//     console.log('unable to save todo')
-// });
-
-newUser.save().then((doc) => {
-    console.log(doc);
-}, (e) => {
-    console.log('unable to add user to db:', e);
+    todo.save().then((doc) => {
+        res.send(doc);
+    }, (e) => {
+        res.status(400).send(e);
+    });
 });
