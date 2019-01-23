@@ -3,7 +3,8 @@ const  bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
+const config = require('./config/config');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/Todo');
 var {User} = require('./models/User');
@@ -76,7 +77,7 @@ app.patch('/todos/:id', (req, res) => {
         return res.status(400).send('id invalid');
     }
 
-    if(_.isBoolean(body.completed) && true) {
+    if(_.isBoolean(body.completed) && body.completed) {
         body.completedAt = new Date().getTime()
     }else {
         body.completed = false;
