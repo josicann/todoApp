@@ -1,8 +1,9 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var {ObjectID} = require('mongodb');
-const port = process.env.PORT || 3000;
+const express = require('express');
+const  bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
+const _ = require('lodash');
 
+const port = process.env.PORT || 3000;
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/Todo');
 var {User} = require('./models/User');
@@ -66,6 +67,35 @@ app.delete('/todos/:id', (req, res) => {
         return res.status(400).send('there was an error');
     });
 });
+
+app.patch('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    var body = _.pick(req.body, ['text', 'completed']);
+
+    if(!ObjectID.isValid(id)) {
+        return res.status(400).send('id invalid');
+    }
+
+    if(_.isBoolean(body.completed) && true) {
+        body.completedAt = new Date().getTime()
+    }else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    Todo.findByIdAndUpdate(id, {
+        $set: body
+    }, {new: true}).then((doc) => {
+        if(!doc) {
+            return res.status(404).send();
+        }
+
+        res.send({doc})
+    }).catch((e) =>{
+        res.status(404).send();
+    });
+
+})
 app.listen(port, ()=> {
     console.log(`listening on port ${port}`);
 });
