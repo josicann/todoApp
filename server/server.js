@@ -40,13 +40,31 @@ app.get('/todos/:id', (req, res) => {
 
     Todo.findById(id).then((doc) => {
         if(!doc) {
-            res.status(404).send();
+           return res.status(404).send();
         }
         res.send({doc});
     }).catch((e) =>{
         res.status(404).send();
     });
 })
+
+app.delete('/todos/:id', (req, res) => {
+    var todoID = req.params.id;
+
+    if(!ObjectID.isValid(todoID)) {
+        return res.status(404).send('id invalid');
+    }
+
+    Todo.findByIdAndRemove(todoID).then((doc) => {
+        if(!doc){
+            return res.status(404).send('cannot find that id')
+        }
+
+        res.send(doc);
+    }).catch((e) => {
+        return res.status(404).send('there was an error');
+    });
+});
 app.listen(port, ()=> {
     console.log(`listening on port ${port}`);
 });
