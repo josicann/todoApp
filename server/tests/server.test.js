@@ -28,7 +28,7 @@ describe('POST /todos', () => {
             .send({text})
             .expect(200)
             .expect((res) => {
-                expect(res.body.text).toBe(text);
+                expect(res.body.doc.text).toBe(text);
             })
             .end((e, res) => {
                 if(e){
@@ -94,6 +94,48 @@ describe('GET /todos/:id', () => {
     it('should return 400 if id is invalid', (done) => {
         request(app)
             .get(`/todos/123`)
+            .expect(400)
+        .end(done);
+    });
+});
+
+describe('DELETE /todos/:id', () => {
+    it('should delete todo if id is valid', (done) => {
+        let id = todos[1]._id.toHexString();
+
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.doc._id).toBe(id);
+            }).end((e, res)=> {
+                if(e) {
+                    return done(e);
+                }
+                Todo.findById(id).then((todo) => {
+                    expect(todo).toNotExist();
+                    done();
+                }).catch((e) => {
+                    return done(e);
+                });
+            });
+    });
+    
+
+    it('should return 404 if id is  not found', (done) => {
+        let id = new ObjectID().toHexString();
+
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+        .end(done);
+    })
+    
+
+    it('should return 400 if id is invalid', (done) => {
+
+        request(app)
+            .delete(`/todos/12312`)
             .expect(400)
         .end(done);
     });
